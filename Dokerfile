@@ -1,0 +1,67 @@
+FROM centos:centos6
+MAINTAINER arif.azim36@gmail.com
+
+RUN yum -y update && \
+    yum groupinstall -y development && \
+    yum install -y \
+    bzip2-devel \
+    git \
+    hostname \
+    openssl \
+    openssl-devel \
+    sqlite-devel \
+    sudo \
+    tar \
+    wget \
+    zlib-dev
+
+RUN cd \tmp;wget  https://www.python.org/ftp/python/2.7.8/Python-2.7.8.tgz && \
+    tar xvfz Python-2.7.8.tgz && \
+    cd Python-2.7.8 && \
+    ./configure --prefix=/usr/local && \
+    make && \
+    make altinstall
+
+
+#Installing MongoDB server using epel release Repo
+
+RUN yum -y update; yum clean all
+RUN yum -y install epel-release; yum clean all
+RUN yum -y install mongodb-server; yum clean all
+RUN mkdir -p /data/db
+
+
+#installation of tomcat
+
+
+RUN yum install -y wget
+
+ #Install tar
+RUN yum install -y tar
+
+#Install OpenJDK 7 JRE  and Install OpenJDK 7 JDK
+
+RUN yum install -y java-1.7.0-openjdk;
+RUN yum install -y java-1.7.0-openjdk-devel
+# downloading the tomcat from AWS S3
+RUN cd /tmp; wget https://s3.ap-south-1.amazonaws.com/newbucket36/apache-tomcat-7.0.79-src.tar.gz
+
+# Extract the tar file
+RUN cd /tmp;tar xvf apache-tomcat-7.0.79-src.tar.gz
+
+#moving and specific location
+RUN cd /tmp;mv apache-tomcat-7.0.79-src  /usr/local/tomcat7
+
+#change exection mode
+
+RUN chmod -R 755 /usr/local/tomcat7
+
+#setting  java home path
+
+ENV JAVA_HOME /usr/lib/jvm/java-1.7.0-openjdk.x86_64/
+
+EXPOSE 8080 #port
+
+CMD /usr/local/tomcat7/bin/catalina.sh run
+
+CMD ["catalina.sh", "run"]
